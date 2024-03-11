@@ -2,24 +2,24 @@ import torch
 import torch.nn as nn
 
 
-import torch
-import torch.nn as nn
 
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
-        
+
         layers = [518, 256, 128, 64, 32, 16, 8, 4, 2, 1]
 
         # Define a list of linear layers with batch normalization
-        self.linear_layers = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(layers[i], layers[i + 1]),
-                nn.BatchNorm1d(layers[i + 1]),
-                nn.LeakyReLU(0.15)
-            )
-            for i in range(len(layers) - 1)
-        ])
+        self.linear_layers = nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Linear(layers[i], layers[i + 1]),
+                    nn.BatchNorm1d(layers[i + 1]),
+                    nn.LeakyReLU(0.15),
+                )
+                for i in range(len(layers) - 1)
+            ]
+        )
 
         # Final sigmoid activation function
         self.sigmoid = nn.Sigmoid()
@@ -33,7 +33,6 @@ class NeuralNetwork(nn.Module):
         x = self.sigmoid(x)
 
         return x
-
 
 
 class MyDataset(Dataset):
