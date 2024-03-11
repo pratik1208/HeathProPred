@@ -2,36 +2,38 @@ import torch
 import torch.nn as nn
 
 
+import torch
+import torch.nn as nn
+
 class NeuralNetwork(nn.Module):
     def __init__(self):
-        super().__init__()
-        self.ll = nn.Linear(518, 256)
-        self.ll2 = nn.Linear(256, 256)
-        self.ll21 = nn.Linear(256, 256)
-        self.ll22 = nn.Linear(256, 128)
-        self.ll3 = nn.Linear(128, 64)
-        self.ll4 = nn.Linear(64, 32)
-        self.ll5 = nn.Linear(32, 16)
-        self.ll6 = nn.Linear(16, 8)
-        self.ll7 = nn.Linear(8, 4)
-        self.ll8 = nn.Linear(4, 2)
-        self.ll9 = nn.Linear(2, 1)
-        self.leaky_relu = nn.LeakyReLU(0.15)
+        super(NeuralNetwork, self).__init__()
+        
+        layers = [518, 256, 128, 64, 32, 16, 8, 4, 2, 1]
+
+        # Define a list of linear layers with batch normalization
+        self.linear_layers = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(layers[i], layers[i + 1]),
+                nn.BatchNorm1d(layers[i + 1]),
+                nn.LeakyReLU(0.15)
+            )
+            for i in range(len(layers) - 1)
+        ])
+
+        # Final sigmoid activation function
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        x = self.leaky_relu(self.ll(x))
-        x = self.leaky_relu(self.ll2(x))
-        x = self.leaky_relu(self.ll21(x))
-        x = self.leaky_relu(self.ll22(x))
-        x = self.leaky_relu(self.ll3(x))
-        x = self.leaky_relu(self.ll4(x))
-        x = self.leaky_relu(self.ll5(x))
-        x = self.leaky_relu(self.ll6(x))
-        x = self.leaky_relu(self.ll7(x))
-        x = self.leaky_relu(self.ll8(x))
-        x = self.leaky_relu(self.ll9(x))
-        x = torch.sigmoid(x)
+        # Iterate through linear layers
+        for layer in self.linear_layers:
+            x = layer(x)
+
+        # Apply sigmoid activation
+        x = self.sigmoid(x)
+
         return x
+
 
 
 class MyDataset(Dataset):

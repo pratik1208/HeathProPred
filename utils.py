@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import category_encoders as ce
 from sklearn.tree import DecisionTreeClassifier
-
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 
@@ -55,6 +55,20 @@ def feature_importance(model, data):
   for index, value in enumerate(importance):
       plt.text(value, index, f'{value:.4f}')
   plt.show()
+
+def CountVectorizer(df, train_x, test_x):
+  train_x = train_x.join(df.KEYWORDS, how= 'left').copy()
+  test_x = test_x.join(df.KEYWORDS, how= 'left').copy()
+  vectorizer = CountVectorizer(max_features=514)
+  train_x_sparse_matrix = vectorizer.fit_transform(train_x.KEYWORDS)
+  test_x_sparse_matrix = vectorizer.transform(test_x.KEYWORDS)
+  feature_names = vectorizer.get_feature_names_out()
+  df_train = pd.DataFrame(train_x_sparse_matrix.toarray(), columns=feature_names,index = train_x.index)
+  df_test = pd.DataFrame(test_x_sparse_matrix.toarray(), columns=feature_names,index = test_x.index)
+  final_train = train_x_encoded.join(df_train, how='left')
+  final_test = test_x_encoded.join(df_test, how= 'left')
+  return final_train, final_test
+
 
 def evaluate(model, data_loader, device="cpu"):
     model = model.eval()
