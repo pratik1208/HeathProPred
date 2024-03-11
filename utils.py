@@ -44,6 +44,18 @@ def DecisionTree_f1_score(train_x, test_x, train_y, test_y):
   y_pred_train = dt.predict(train_x)
   return (f1_score(y_pred,test_y), (f1_score(y_pred_train,train_y)))
 
+def feature_importance(model, data):
+  importance = model.feature_importances_
+  feature_names = data.columns
+  import matplotlib.pyplot as plt
+  plt.barh(range(len(importance)), importance, align = 'center')
+  plt.xlabel("Feature Importance")
+  plt.ylabel("Feature")
+  plt.yticks(range(len(importance)), feature_names)
+  for index, value in enumerate(importance):
+      plt.text(value, index, f'{value:.4f}')
+  plt.show()
+
 def evaluate(model, data_loader, device="cpu"):
     model = model.eval()
     with torch.inference_mode():
