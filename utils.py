@@ -1,4 +1,4 @@
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,12 +16,14 @@ def train_test_split(df):
     train = df[~df.index.isin(test.index)]
     return train, test
 
+
 def x_y_split(train, test):
     train_x = train.iloc[:, :-1]
     train_y = train.iloc[:, -1]
     test_x = test.iloc[:, :-1]
     test_y = test.iloc[:, -1]
     return train_x, train_y, test_x, test_y
+
 
 def data_preprocessing(df):
     df["KEYWORDS"] = df["KEYWORDS"].str.lower()
@@ -37,8 +39,7 @@ def data_preprocessing(df):
             "PLATFORM_ID",
             "DEVICETYPE",
         ],
-        axis=1
-        
+        axis=1,
     )
     new_df = new_df.fillna(0)
     return new_df
@@ -56,14 +57,14 @@ def target_encoding(train, test):
 
 
 def accuracy(model, train_x, test_x, train_y, test_y):
-    model.fit(train_x,train_y)
+    model.fit(train_x, train_y)
     y_pred = model.predict(test_x)
     y_pred_train = model.predict(train_x)
     return (accuracy_score(y_pred, test_y), (accuracy_score(y_pred_train, train_y)))
 
 
 def F1_score(model, train_x, test_x, train_y, test_y):
-    model.fit(train_x,train_y)
+    model.fit(train_x, train_y)
     y_pred = model.predict(test_x)
     y_pred_train = model.predict(train_x)
     return (f1_score(y_pred, test_y), (f1_score(y_pred_train, train_y)))
@@ -83,7 +84,12 @@ def feature_importance(model, data):
     plt.show()
 
 
-def Count_Vectorizer(df, train_x, test_x, train_x_encoded,test_x_encoded ):
+def total_parameters(model):
+    total_params = sum(p.numel() for p in model.parameters())
+    return total_params
+
+
+def Count_Vectorizer(df, train_x, test_x, train_x_encoded, test_x_encoded):
     train_x = train_x.join(df.KEYWORDS, how="left").copy()
     test_x = test_x.join(df.KEYWORDS, how="left").copy()
     vectorizer = CountVectorizer(max_features=514)
@@ -113,6 +119,6 @@ def evaluate(model, data_loader, device="cpu"):
         real = torch.cat(reals)
         f1 = f1_score(pred, real, average="macro")
         accuracy = accuracy_score(pred, real)
-    print("f1_score is =", f1)
-    print("Accuracy is =", accuracy)
+
     model.train()
+    return f1, accuracy
