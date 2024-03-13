@@ -15,7 +15,6 @@ class NeuralNetwork(nn.Module):
             [
                 nn.Sequential(
                     nn.Linear(layers[i], layers[i + 1]),
-                    nn.BatchNorm1d(layers[i + 1]),
                     nn.LeakyReLU(0.15),
                 )
                 for i in range(len(layers) - 1)
