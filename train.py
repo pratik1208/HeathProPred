@@ -86,6 +86,4 @@ my_dataloader_test = DataLoader(
 evaluate(neuralnet, my_dataloader_test, device)
 f1, accuracy = evaluate(neuralnet, my_dataloader_test, device)
 print(f"Test Accuracy at {epoch+1} : {accuracy} and F1 Score : {f1}")
-print("saving model")
 torch.save(neuralnet.state_dict(), "neuralnet_weights.pth")
-print("saved model")

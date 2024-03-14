@@ -109,16 +109,15 @@ def Count_Vectorizer(df, train_x, test_x, train_x_encoded, test_x_encoded):
 
 def evaluate(model, data_loader, device="cpu"):
     model = model.eval()
-    with torch.inference_mode():
-        preds, reals = [], []
-        for features, targets in tqdm(data_loader):
-            pred = model(features.to(torch.float32).to(device))
-            preds.append(pred.detach().cpu())
-            reals.append(targets)
-        pred = torch.cat(preds) > 0.5
-        real = torch.cat(reals)
-        f1 = f1_score(pred, real, average="macro")
-        accuracy = accuracy_score(pred, real)
+    preds, reals = [], []
+    for features, targets in tqdm(data_loader):
+        pred = model(features.to(torch.float32).to(device))
+        preds.append(pred.detach().cpu())
+        reals.append(targets)
+    pred = torch.cat(preds) > 0.5
+    real = torch.cat(reals)
+    f1 = f1_score(pred, real, average="macro")
+    accuracy = accuracy_score(pred, real)
 
     model.train()
     return f1, accuracy

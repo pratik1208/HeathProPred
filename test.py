@@ -2,7 +2,7 @@ import torch
 from models import *
 import pandas as pd
 
-file_path = "/home2/pratik_2211ai19/TechGIG/train.py"
+file_path = "/home2/pratik_2211ai19/TechGIG/neuralnet_weights.pth"
 
 neuralnet = NeuralNetwork()
 neuralnet.load_state_dict(torch.load(file_path))
