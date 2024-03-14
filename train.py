@@ -7,12 +7,11 @@ import torch
 import torch.nn as nn
 import category_encoders as ce
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from utils import *
 from models import *
-from torch.utils.data import Dataset, DataLoader
-
 
 df = pd.read_csv(
     "/home2/pratik_2211ai19/TechGIG/Doceree-HCP_Train.csv", encoding="latin-1"
@@ -33,7 +32,7 @@ print(
 f1_score_test, f1_score_train = F1_score(
     dt, train_x_encoded, test_x_encoded, train_y, test_y
 )
-print(f"(Test F1 score : {f1_score_test: 4f}, Train F1 score : {f1_score_train:4f})")
+print(f"(Test F1 score before applying countVectorizer : {f1_score_test: 4f}, Train F1 score before applying countVectorizer : {f1_score_train:4f})")
 
 feature_importance(dt, train_x)
 
@@ -41,39 +40,12 @@ final_train, final_test = Count_Vectorizer(
     df, train_x, test_x, train_x_encoded, test_x_encoded
 )
 
-neuralnet = NeuralNetwork()
+dt = DecisionTreeClassifier()
 
-features = final_train
-targets = train_y
-my_dataset = MyDataset(features, targets)
-
-batch_size = 32
-shuffle = True
-
-my_dataloader = DataLoader(dataset=my_dataset, batch_size=batch_size, shuffle=shuffle)
-device = torch.device("cuda")
-neuralnet = neuralnet.to(device)
-epochs = 1
-optimizer = torch.optim.Adam(neuralnet.parameters(), lr=0.001)
-loss = nn.BCELoss()
-
-train_epoch = []
-train_accuracy = []
-train_f1_score = []
-for epoch in tqdm(range(epochs)):
-
-    for batch in tqdm(my_dataloader):
-        batch_features, batch_targets = batch
-        pred = neuralnet(batch_features.to(torch.float32).to(device))
-        l = loss(pred.squeeze(), batch_targets.to(torch.float32).to(device))
-        print(f"\rloss = {l.item()}", end=" ")
-        optimizer.zero_grad()
-        l.backward()
-        optimizer.step()
-    f1, accuracy = evaluate(neuralnet, my_dataloader, device)
-    train_epoch.append(epoch)
-    train_accuracy.append(accuracy)
-    train_f1_score.append(f1)
-    print(train_epoch)
-    print(train_accuracy)
-    print(train_f1_score)
+accuracy_train, f1_train, accuracy_test, f1_test = classifier(dt, final_train, train_y, final_test, test_y)
+print("Decision Tree Classifier")
+print(f"Train accuracy is {accuracy_train} and Train F1 Score is {f1_train}",f"Test accuracy is {accuracy_test} and Test F1 Score is {f1_test}")
+df = RandomForestClassifier(n_estimators=100,max_features=3, random_state=42)
+print("Random Forest Classifier")
+accuracy_train, f1_train, accuracy_test, f1_test = classifier(df, final_train, train_y, final_test, test_y)
+print(f"Train accuracy is {accuracy_train} and Train F1 Score is {f1_train}",f"Test accuracy is {accuracy_test} and Test F1 Score is {f1_test}")
